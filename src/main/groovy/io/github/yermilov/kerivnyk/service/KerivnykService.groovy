@@ -45,7 +45,7 @@ class KerivnykService {
     }
 
     Collection<Job> getActiveJobs() {
-        jobRepository.findByExecutorQualifierAndStatusIn(executorQualifier, [ JobStatus.RUNNING.toString(), JobStatus.STOPPING.toString() ])
+        jobRepository.findByExecutorQualifierAndStatusIn(executorQualifier, [ JobStatus.STARTING.toString(), JobStatus.RUNNING.toString(), JobStatus.STOPPING.toString() ])
     }
 
     Job getJobById(String id) {
@@ -78,7 +78,7 @@ class KerivnykService {
         jobRepository.save(job)
     }
 
-    private Job runJob(DurableJob durableJob, Closure executeJob) {
+    Job runJob(DurableJob durableJob, Closure executeJob) {
         Job job = new Job()
         job.name = durableJob.name
         job.executorQualifier = executorQualifier
@@ -86,11 +86,13 @@ class KerivnykService {
 
         job = jobRepository.save job
 
+        log.info "${jobLogPrefix(job.id)} checking if it's possible to start..."
         if (durableJob.canStart(getActiveJobs())) {
+            log.info "${jobLogPrefix(job.id)} starting..."
             executeJob(job)
         } else {
             job.message = 'refused to start'
-            log.warn job.message
+            log.warn "${jobLogPrefix(job.id)} ${job.message}"
             job.status = JobStatus.ABORTED.toString()
             jobRepository.save job
         }
@@ -98,9 +100,8 @@ class KerivnykService {
         return job
     }
 
-    private void executeDurableJob(Job job, DurableJob durableJob) {
+    void executeDurableJob(Job job, DurableJob durableJob) {
         try {
-            log.info "${jobLogPrefix(job.id)} starting..."
             job.startTimestamp = System.currentTimeMillis()
             job.startTime = LocalDateTime.now().toString()
             job.lastUpdateTime = job.startTime
@@ -108,6 +109,7 @@ class KerivnykService {
             job.status = JobStatus.RUNNING.toString()
             job = jobRepository.save job
 
+            log.info "${jobLogPrefix(job.id)} initializing..."
             durableJob.init()
 
             while (true) {
@@ -138,6 +140,7 @@ class KerivnykService {
                 durableJob.act()
             }
 
+            log.info "${jobLogPrefix(job.id)} destroing..."
             durableJob.destroy()
 
             log.info "${jobLogPrefix(job.id)} succeeded"
@@ -159,7 +162,7 @@ class KerivnykService {
         }
     }
 
-    private String jobLogPrefix(Job job) {
+    String jobLogPrefix(Job job) {
         "job=${executorQualifier}:${job.id} (after ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}):"
     }
 }
