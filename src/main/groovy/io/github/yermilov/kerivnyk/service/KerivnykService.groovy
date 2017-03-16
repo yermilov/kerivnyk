@@ -163,6 +163,10 @@ class KerivnykService {
     }
 
     String jobLogPrefix(Job job) {
-        "job=${executorQualifier}:${job.id} (after ${toDurationString(System.currentTimeMillis() - job.startTimestamp)}):"
+        String jobLogPrefix = "job=${executorQualifier}:${job.id}"
+        if (job.startTimestamp != null) {
+            jobLogPrefix += " (after ${toDurationString(System.currentTimeMillis() - job.startTimestamp)})"
+        }
+        return jobLogPrefix + ":"
     }
 }
