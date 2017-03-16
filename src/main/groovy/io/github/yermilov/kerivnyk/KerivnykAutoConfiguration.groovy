@@ -1,8 +1,8 @@
-package com.github.vuzoll.tasks
+package io.github.yermilov.kerivnyk
 
-import com.github.vuzoll.tasks.controller.JobsController
-import com.github.vuzoll.tasks.repository.JobRepository
-import com.github.vuzoll.tasks.service.JobsService
+import io.github.yermilov.kerivnyk.controller.KerivnykController
+import io.github.yermilov.kerivnyk.repository.JobRepository
+import io.github.yermilov.kerivnyk.service.KerivnykService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.AutoConfigureAfter
@@ -19,31 +19,31 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @Configuration
 @AutoConfigureAfter([ MongoAutoConfiguration, MongoDataAutoConfiguration, MongoRepositoriesAutoConfiguration ])
-@EnableConfigurationProperties(TasksManagerProperties)
-@EnableMongoRepositories('com.github.vuzoll.tasks.repository')
-class TasksManagerAutoConfiguration {
+@EnableConfigurationProperties(KerivnykProperties)
+@EnableMongoRepositories('io.github.yermilov.kerivnyk.repository')
+class KerivnykAutoConfiguration {
 
     @Autowired
-    TasksManagerProperties tasksManagerProperties
+    KerivnykProperties kerivnykProperties
 
     @Bean
-    JobsController jobsController(@Autowired JobsService jobsService) {
-        new JobsController(jobsService: jobsService)
+    KerivnykController kerivnykController(@Autowired KerivnykService kerivnykService) {
+        new KerivnykController(kerivnykService: kerivnykService)
     }
 
     @Bean
-    JobsService jobsService(@Autowired JobRepository jobRepository, @Autowired @Qualifier('vuzollTasksExecutor') TaskExecutor taskExecutor) {
-        new JobsService(
+    KerivnykService kerivnykService(@Autowired JobRepository jobRepository, @Autowired @Qualifier('KerivnykExecutorBean') TaskExecutor taskExecutor) {
+        new KerivnykService(
                 jobRepository: jobRepository,
                 taskExecutor: taskExecutor,
-                executorQualifier: tasksManagerProperties.executorQualifier,
-                updateDelay: tasksManagerProperties.updateDelay,
-                maxMessageLogCount: tasksManagerProperties.maxMessageLogCount
+                executorQualifier: kerivnykProperties.executorQualifier,
+                updateDelay: kerivnykProperties.updateDelay,
+                maxMessageLogCount: kerivnykProperties.maxMessageLogCount
         )
     }
 
-    @ConditionalOnMissingBean(annotation = TaskExecutorBean)
-    @TaskExecutorBean
+    @ConditionalOnMissingBean(annotation = KerivnykExecutorBean)
+    @KerivnykExecutorBean
     TaskExecutor taskExecutor() {
         new SimpleAsyncTaskExecutor()
     }

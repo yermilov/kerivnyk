@@ -1,4 +1,4 @@
-package com.github.vuzoll.tasks.service
+package io.github.yermilov.kerivnyk.service
 
 abstract class DurableJob {
 

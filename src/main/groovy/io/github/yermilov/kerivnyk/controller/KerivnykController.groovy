@@ -1,8 +1,8 @@
-package com.github.vuzoll.tasks.controller
+package io.github.yermilov.kerivnyk.controller
 
-import com.github.vuzoll.tasks.domain.Job
-import com.github.vuzoll.tasks.service.JobsService
 import groovy.util.logging.Slf4j
+import io.github.yermilov.kerivnyk.domain.Job
+import io.github.yermilov.kerivnyk.service.KerivnykService
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -11,53 +11,53 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 @Slf4j
-class JobsController {
+class KerivnykController {
 
-    JobsService jobsService
+    KerivnykService kerivnykService
 
-    @GetMapping(path = '/job/{jobId}')
+    @GetMapping(path = '/kerivnyk/job/{jobId}')
     @ResponseBody Job getJobById(@PathVariable String jobId) {
-        jobsService.getJobById(jobId)
+        kerivnykService.getJobById(jobId)
     }
 
-    @GetMapping(path = '/job/last')
+    @GetMapping(path = '/kerivnyk/job/last')
     @ResponseBody Job getLastJob() {
-        jobsService.getLastJob()
+        kerivnykService.getLastJob()
     }
 
-    @GetMapping(path = '/job/active')
+    @GetMapping(path = '/kerivnyk/job/active')
     @ResponseBody Job getActiveJob() {
-        jobsService.getActiveJob()
+        kerivnykService.getActiveJob()
     }
 
-    @GetMapping(path = '/job')
+    @GetMapping(path = '/kerivnyk/job')
     @ResponseBody List<Job> getAllJobs() {
-        jobsService.getAllJobs()
+        kerivnykService.getAllJobs()
     }
 
-    @DeleteMapping(path = '/job/{jobId}')
+    @DeleteMapping(path = '/kerivnyk/job/{jobId}')
     @ResponseBody Job stopJobById(@PathVariable String jobId) {
         log.info "Receive request to stop job with id=${jobId}"
 
-        Job job = jobsService.getJobById(jobId)
+        Job job = kerivnykService.getJobById(jobId)
 
         if (job == null) {
             return null
         } else {
-            return jobsService.stopJob(job)
+            return kerivnykService.stopJob(job)
         }
     }
 
-    @DeleteMapping(path = '/job/active')
+    @DeleteMapping(path = '/kerivnyk/job/active')
     @ResponseBody Job stopActiveJob() {
         log.info 'Receive request to stop active job'
 
-        Job job = jobsService.getActiveJob()
+        Job job = kerivnykService.getActiveJob()
 
         if (job == null) {
             return null
         } else {
-            return jobsService.stopJob(job)
+            return kerivnykService.stopJob(job)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.github.vuzoll.tasks.domain
+package io.github.yermilov.kerivnyk.domain
 
 class JobLog {
 

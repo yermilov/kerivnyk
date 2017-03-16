@@ -1,9 +1,9 @@
-package com.github.vuzoll.tasks
+package io.github.yermilov.kerivnyk
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 
-@ConfigurationProperties('vuzoll.tasks')
-class TasksManagerProperties {
+@ConfigurationProperties('kerivnyk')
+class KerivnykProperties {
 
     String executorQualifier = 'default'
 

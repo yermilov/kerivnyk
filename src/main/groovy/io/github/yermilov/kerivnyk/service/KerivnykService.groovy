@@ -1,11 +1,10 @@
-package com.github.vuzoll.tasks.service
+package io.github.yermilov.kerivnyk.service
 
-import com.github.vuzoll.tasks.domain.Job
-import com.github.vuzoll.tasks.domain.JobLog
-import com.github.vuzoll.tasks.domain.JobStatus
-import com.github.vuzoll.tasks.repository.JobRepository
-import groovy.transform.Memoized
+import io.github.yermilov.kerivnyk.domain.Job
+import io.github.yermilov.kerivnyk.domain.JobLog
 import groovy.util.logging.Slf4j
+import io.github.yermilov.kerivnyk.domain.JobStatus
+import io.github.yermilov.kerivnyk.repository.JobRepository
 import org.joda.time.Period
 import org.joda.time.format.PeriodFormatter
 import org.joda.time.format.PeriodFormatterBuilder
@@ -19,7 +18,7 @@ import java.time.LocalDateTime
 
 @Service
 @Slf4j
-class JobsService {
+class KerivnykService {
 
     static final PeriodFormatter TIME_LIMIT_FORMAT = new PeriodFormatterBuilder()
             .appendHours().appendSuffix('h')
