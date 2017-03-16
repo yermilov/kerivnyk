@@ -6,8 +6,4 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 class KerivnykProperties {
 
     String executorQualifier = 'default'
-
-    String updateDelay = '30min'
-
-    Integer maxMessageLogCount = 20
 }

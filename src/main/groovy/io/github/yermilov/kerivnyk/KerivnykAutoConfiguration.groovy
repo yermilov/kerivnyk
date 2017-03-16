@@ -36,9 +36,7 @@ class KerivnykAutoConfiguration {
         new KerivnykService(
                 jobRepository: jobRepository,
                 taskExecutor: taskExecutor,
-                executorQualifier: kerivnykProperties.executorQualifier,
-                updateDelay: kerivnykProperties.updateDelay,
-                maxMessageLogCount: kerivnykProperties.maxMessageLogCount
+                executorQualifier: kerivnykProperties.executorQualifier
         )
     }
 

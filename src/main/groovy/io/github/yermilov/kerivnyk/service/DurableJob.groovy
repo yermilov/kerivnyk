@@ -8,6 +8,8 @@ abstract class DurableJob {
 
     boolean finished
 
+    Map<String, Object> dashboard
+
     DurableJob(String name) {
         this(name, null)
     }
@@ -16,13 +18,22 @@ abstract class DurableJob {
         this.name = name
         this.timeLimit = timeLimit
         this.finished = false
+        this.dashboard = [:]
     }
 
-    abstract void initSelf(Closure statusUpdater)
+    void init() {
+        // do nothing by default
+    }
 
-    abstract void doSomething(Closure statusUpdater)
+    void act() {
+        // do nothing by default
+    }
 
-    void markFinished() {
+    void destroy() {
+        // do nothing by default
+    }
+
+    final void finished() {
         this.finished = true
     }
 }

@@ -20,7 +20,7 @@ class Job {
     String timeTaken
 
     String status
-    String lastMessage
+    String message
 
-    List<JobLog> messageLog
+    Map<String, Object> dashboard
 }
