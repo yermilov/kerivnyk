@@ -1,0 +1,29 @@
+sudo: required
+
+language: java
+
+before_cache:
+- rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+- rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+  - "$HOME/.gradle/caches/"
+  - "$HOME/.gradle/wrapper/"
+
+before_install:
+- chmod +x gradlew
+
+install:
+- "./gradlew build jacocoTestReport --scan"
+
+after_success:
+- bash <(curl -s https://codecov.io/bash)
+
+script:
+- if [ "$TRAVIS_BRANCH" == "master" ]; then ./gradlew bintrayUpload --scan; fi
+
+env:
+  global:
+  - secure: QGscVc989iBvMrbhx2q00sIYYoFwAB0eZeQEdVbAjqwGJJeU+DIqoFhfMNNCcXMD3g8nWUIg9O/RLrhlYr6l0NC3ibqkMO+oLKqT+VCtFQ/IiZfY63XaBlzJ5j8OBk4eU9/ewofYh1zOI2y33bIcFst1SVQ3PyiDJCGQXcdNq5g2+5lWfMoCskQqaXeuzgGya3C9L2WtK4eNwycwRP5nbLRNImAJoIAv5z0f7Rg4Cv67IRgTMHb8+gxBKVqI1WvTsJmEaznwTVNldlETWYuO3PvFyZqRMVymVAo5c4AutDpLHtULNIkWiz47LOauvYl8lhHOyCT7AKb6X0BOOB2rPkuprNAPXblOc0GxiaYgW8/vuryp8UfLtnnkKhAZGNyy2liXxIv2fFsewZha/dhHbD6Lwxh9k3WvI43qq8LvXwtKlJAuxCX5FY0yHVGGaJ6YoVE4TMSm89CnEILLyIOmTn5fCB2sEbYOWrOGTeqOyIufhx2v22B7eWW9NuXIMOX/FuLutxhsKZ7P9TIU0qL5kNV8klxwkdONdidvBomPGPEAnvziDIPjIREmY69roUqCKMMtkehUyx1+hgtkupKht8oZdUHe7FtdNM/hD30HBFcuolZ4IRFDAVSMrXf44BgI+Iod3WywYbOTP5PnH+iL0ZEHVJxZ66mZx1N8F/kmHNo=
+  - secure: T2HNEZCjP5VkMC/MBr6hFkJH4VKQX8+pmPmk2/01xyRO7kH/oewqU6gAoneJbGEDh5CqTzUK8ERRnlbpit2ct6x2Vn3lnJb9WFC1nUdZV6xBFFJTAIZxfCT4pKwMha4TuyI0vwNgN0m3XjdO9MocM61nggfKMiXxXJ1eHc7HZL1b/dnqg65S5HTH4jwE60DCmObQAs/POsicmgVgSHscMNazKCwO34+Ta4SspDOpm6eJbttWzUT5EccG/1dZJnZVKGTBUP07KcD6TfFjUKBMenmIvpJ+mlivjMx6S5+uE3iat3ctgi6s3was4EexVjbEAyKs1s43T3HvGHu7ChpDH+XDdE//GRiobh+J4eXS2vXiG3Ekh31JlxmkqrFrUdpnGOemADsddeIDHuN8ETdxilAHTE85VowAnLbS3QaJXB7OhC6FC/3wxPMKPiy2VhXstVUZry0SwrN5pSdYK/X2bJFBLi7GkxnPyTsudp643xbpT/SLI7hL6A8R5+89u+DgRfoNt4PjdboAYSeSTwIG/amJcMuNYtuErly96kx/nLiNu6pWF28UXuCck1Qdcuw+jWkvQ9uFaXEnWmQKhdONAVGOvXYP52HU1vJB4nWLxjoWMmPkN3ZyUN6JUOyUbkExDwN5cpcMY/BfMuGCky6ojgeaFzbZt4IfaC1g34fP2zA=

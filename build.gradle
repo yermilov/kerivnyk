@@ -1,0 +1,84 @@
+buildscript {
+    repositories { jcenter() }
+
+    dependencies {
+        classpath 'com.netflix.nebula:nebula-dependency-recommender:3.6.3'
+    }
+}
+
+plugins {
+    id 'com.gradle.build-scan' version '1.6'
+
+    id 'jacoco'
+
+    id 'nebula.maven-publish' version '4.9.1'
+    id 'nebula.nebula-bintray' version '3.5.2'
+}
+
+apply plugin: 'groovy'
+apply plugin: 'idea'
+
+apply plugin: 'nebula.dependency-recommender'
+
+dependencyRecommendations {
+    mavenBom module: 'org.springframework.boot:spring-boot-dependencies:1.5.2.RELEASE'
+}
+
+group = 'com.github.vuzoll'
+version = '0.5-SNAPSHOT'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all'
+
+    compile 'org.springframework.boot:spring-boot-autoconfigure'
+
+    compile 'org.springframework.boot:spring-boot-starter-web'
+    compile 'org.springframework.data:spring-data-mongodb'
+
+    compile 'joda-time:joda-time'
+}
+
+buildScan {
+    licenseAgreementUrl = 'https://gradle.com/terms-of-service'
+    licenseAgree = 'yes'
+}
+
+jacocoTestReport {
+    reports {
+        xml.enabled = true
+        html.enabled = true
+    }
+}
+
+bintray {
+    user = project.hasProperty('bintrayUsername') ? project.bintrayUsername : System.getenv('BINTRAY_USERNAME')
+    key = project.hasProperty('bintrayApiKey') ? project.bintrayApiKey : System.getenv('BINTRAY_API_KEY')
+
+    publications = [ 'nebula' ]
+
+    dryRun = false
+    publish = true
+
+    pkg {
+        userOrg = 'vuzoll'
+        repo = 'vuzoll-maven'
+        name = 'vuzoll-tasks-manager-starter'
+        licenses = [ 'Apache-2.0' ]
+        vcsUrl = 'https://github.com/vuzoll/vuzoll-tasks-manager-starter.git'
+
+        version {
+            name = project.version
+        }
+    }
+}
+
+publishing {
+    publications {
+        nebula(MavenPublication) {
+        }
+    }
+}
