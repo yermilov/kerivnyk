@@ -74,7 +74,11 @@ class KerivnykService {
     }
 
     Job stopJob(Job job) {
-        job.status = JobStatus.STOPPING.toString()
+        if (job.status == JobStatus.RUNNING.toString()) {
+            job.status = JobStatus.STOPPING.toString()
+        } else {
+            job.status = JobStatus.ABORTED.toString()
+        }
         jobRepository.save(job)
     }
 
@@ -126,7 +130,7 @@ class KerivnykService {
                     break
                 }
 
-                if (job.status == JobStatus.STOPPING.toString()) {
+                if (job.status != JobStatus.RUNNING.toString()) {
                     job.message = 'stopped by client request'
                     log.info "${jobLogPrefix(job)} ${job.message}"
                     break
