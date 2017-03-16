@@ -1,5 +1,7 @@
 package io.github.yermilov.kerivnyk.service
 
+import io.github.yermilov.kerivnyk.domain.Job
+
 abstract class DurableJob {
 
     final String name
@@ -19,6 +21,10 @@ abstract class DurableJob {
         this.timeLimit = timeLimit
         this.finished = false
         this.dashboard = [:]
+    }
+
+    boolean canStart(Collection<Job> concurrentJobs) {
+        true
     }
 
     void init() {

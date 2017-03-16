@@ -26,12 +26,12 @@ class KerivnykController {
     }
 
     @GetMapping(path = '/kerivnyk/job/active')
-    @ResponseBody Job getActiveJob() {
-        kerivnykService.getActiveJob()
+    @ResponseBody Collection<Job> getActiveJobs() {
+        kerivnykService.getActiveJobs()
     }
 
     @GetMapping(path = '/kerivnyk/job')
-    @ResponseBody List<Job> getAllJobs() {
+    @ResponseBody Collection<Job> getAllJobs() {
         kerivnykService.getAllJobs()
     }
 
@@ -40,19 +40,6 @@ class KerivnykController {
         log.info "Receive request to stop job with id=${jobId}"
 
         Job job = kerivnykService.getJobById(jobId)
-
-        if (job == null) {
-            return null
-        } else {
-            return kerivnykService.stopJob(job)
-        }
-    }
-
-    @DeleteMapping(path = '/kerivnyk/job/active')
-    @ResponseBody Job stopActiveJob() {
-        log.info 'Receive request to stop active job'
-
-        Job job = kerivnykService.getActiveJob()
 
         if (job == null) {
             return null

@@ -13,9 +13,9 @@ import org.springframework.boot.autoconfigure.mongo.MongoAutoConfiguration
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.core.task.SimpleAsyncTaskExecutor
 import org.springframework.core.task.TaskExecutor
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor
 
 @Configuration
 @AutoConfigureAfter([ MongoAutoConfiguration, MongoDataAutoConfiguration, MongoRepositoriesAutoConfiguration ])
@@ -43,6 +43,12 @@ class KerivnykAutoConfiguration {
     @ConditionalOnMissingBean(annotation = KerivnykExecutorBean)
     @KerivnykExecutorBean
     TaskExecutor taskExecutor() {
-        new SimpleAsyncTaskExecutor()
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor()
+        taskExecutor.corePoolSize = kerivnykProperties.corePoolSize
+        taskExecutor.maxPoolSize = kerivnykProperties.maxPoolSize
+        taskExecutor.keepAliveSeconds = kerivnykProperties.keepAliveSeconds
+        taskExecutor.queueCapacity = kerivnykProperties.queueCapacity
+
+        return taskExecutor
     }
 }

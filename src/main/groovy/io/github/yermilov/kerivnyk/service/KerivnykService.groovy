@@ -34,7 +34,7 @@ class KerivnykService {
     @PostConstruct
     void markAbortedJobs() {
         log.info "Marking all aborted jobs for executor [${executorQualifier}]..."
-        Collection<Job> activeJobs = findActiveJobs()
+        Collection<Job> activeJobs = getActiveJobs()
         if (activeJobs.empty) {
             log.info "Found no active jobs for executor [${executorQualifier}]"
         } else {
@@ -44,19 +44,8 @@ class KerivnykService {
         }
     }
 
-    Job getActiveJob() {
-        Collection<Job> activeJobs = findActiveJobs()
-
-        if (activeJobs.empty) {
-            return null
-        }
-
-        if (activeJobs.size() > 1) {
-            log.error("There are more than one active job for executor [${executorQualifier}]: ${activeJobs}")
-            throw new IllegalStateException("There are more than one active job for executor [${executorQualifier}]: ${activeJobs}")
-        }
-
-        return activeJobs.first()
+    Collection<Job> getActiveJobs() {
+        jobRepository.findByExecutorQualifierAndStatusIn(executorQualifier, [ JobStatus.RUNNING.toString(), JobStatus.STOPPING.toString() ])
     }
 
     Job getJobById(String id) {
@@ -89,7 +78,7 @@ class KerivnykService {
         jobRepository.save(job)
     }
 
-    private Job runJob(DurableJob durableJob, Closure runAction) {
+    private Job runJob(DurableJob durableJob, Closure executeJob) {
         Job job = new Job()
         job.name = durableJob.name
         job.executorQualifier = executorQualifier
@@ -97,11 +86,10 @@ class KerivnykService {
 
         job = jobRepository.save job
 
-        Job activeJob = getActiveJob()
-        if (activeJob == null) {
-            runAction.call(job)
+        if (durableJob.canStart(getActiveJobs())) {
+            executeJob(job)
         } else {
-            job.message = "There is another active job for executor [${executorQualifier}] with id=$activeJob.id, can't accept new one"
+            job.message = 'refused to start'
             log.warn job.message
             job.status = JobStatus.ABORTED.toString()
             jobRepository.save job
@@ -169,10 +157,6 @@ class KerivnykService {
             job.status = JobStatus.FAILED.toString()
             jobRepository.save job
         }
-    }
-
-    private Collection<Job> findActiveJobs() {
-        jobRepository.findByExecutorQualifierAndStatusIn(executorQualifier, [ JobStatus.RUNNING.toString(), JobStatus.STOPPING.toString() ])
     }
 
     private String jobLogPrefix(Job job) {
