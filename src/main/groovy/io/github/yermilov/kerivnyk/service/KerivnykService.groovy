@@ -87,7 +87,8 @@ class KerivnykService {
         job = jobRepository.save job
 
         log.info "${jobLogPrefix(job)} checking if it's possible to start..."
-        if (durableJob.canStart(getActiveJobs())) {
+        Collection<Job> activeJobs = getActiveJobs().findAll({ it.id != job.id })
+        if (durableJob.canStart(activeJobs)) {
             log.info "${jobLogPrefix(job)} starting..."
             executeJob(job)
         } else {
