@@ -86,13 +86,13 @@ class KerivnykService {
 
         job = jobRepository.save job
 
-        log.info "${jobLogPrefix(job.id)} checking if it's possible to start..."
+        log.info "${jobLogPrefix(job)} checking if it's possible to start..."
         if (durableJob.canStart(getActiveJobs())) {
-            log.info "${jobLogPrefix(job.id)} starting..."
+            log.info "${jobLogPrefix(job)} starting..."
             executeJob(job)
         } else {
             job.message = 'refused to start'
-            log.warn "${jobLogPrefix(job.id)} ${job.message}"
+            log.warn "${jobLogPrefix(job)} ${job.message}"
             job.status = JobStatus.ABORTED.toString()
             jobRepository.save job
         }
@@ -109,7 +109,7 @@ class KerivnykService {
             job.status = JobStatus.RUNNING.toString()
             job = jobRepository.save job
 
-            log.info "${jobLogPrefix(job.id)} initializing..."
+            log.info "${jobLogPrefix(job)} initializing..."
             durableJob.init()
 
             while (true) {
@@ -121,29 +121,29 @@ class KerivnykService {
 
                 if (durableJob.finished) {
                     job.message = 'finished successfully'
-                    log.info "${jobLogPrefix(job.id)} ${job.message}"
+                    log.info "${jobLogPrefix(job)} ${job.message}"
                     break
                 }
 
                 if (job.status == JobStatus.STOPPING.toString()) {
                     job.message = 'stopped by client request'
-                    log.info "${jobLogPrefix(job.id)} ${job.message}"
+                    log.info "${jobLogPrefix(job)} ${job.message}"
                     break
                 }
 
                 if (durableJob.timeLimit != null && System.currentTimeMillis() - job.startTimestamp > fromDurationString(durableJob.timeLimit)) {
                     job.message = 'time limit is exceeded'
-                    log.info "${jobLogPrefix(job.id)} ${job.message}"
+                    log.info "${jobLogPrefix(job)} ${job.message}"
                     break
                 }
 
                 durableJob.act()
             }
 
-            log.info "${jobLogPrefix(job.id)} destroing..."
+            log.info "${jobLogPrefix(job)} destroing..."
             durableJob.destroy()
 
-            log.info "${jobLogPrefix(job.id)} succeeded"
+            log.info "${jobLogPrefix(job)} succeeded"
             job = jobRepository.findOne job.id
             job.endTime = LocalDateTime.now().toString()
             job.lastUpdateTime = job.endTime
@@ -151,7 +151,7 @@ class KerivnykService {
             job.status = JobStatus.COMPLETED.toString()
             jobRepository.save job
         } catch (e) {
-            log.error("${jobLogPrefix(job.id)} failed", e)
+            log.error("${jobLogPrefix(job)} failed", e)
             job = jobRepository.findOne job.id
             job.message = "Failed because of ${e.class.name}, with message: ${e.message}"
             job.endTime = LocalDateTime.now().toString()
