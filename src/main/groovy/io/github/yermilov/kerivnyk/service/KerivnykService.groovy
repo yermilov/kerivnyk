@@ -117,7 +117,7 @@ class KerivnykService {
                 job = jobRepository.findOne job.id
                 job.dashboard = durableJob.dashboard
                 job.lastUpdateTime = LocalDateTime.now().toString()
-                job.timeTaken = toDurationString(job.lastUpdateTime - job.startTimestamp)
+                job.timeTaken = toDurationString(System.currentTimeMillis() - job.startTimestamp)
                 jobRepository.save job
 
                 if (durableJob.finished) {
