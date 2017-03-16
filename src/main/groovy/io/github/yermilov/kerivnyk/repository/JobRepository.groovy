@@ -1,6 +1,6 @@
-package com.github.vuzoll.tasks.repository
+package io.github.yermilov.kerivnyk.repository
 
-import com.github.vuzoll.tasks.domain.Job
+import io.github.yermilov.kerivnyk.domain.Job
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort

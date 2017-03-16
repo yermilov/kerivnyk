@@ -1,4 +1,4 @@
-package com.github.vuzoll.tasks.domain
+package io.github.yermilov.kerivnyk.domain
 
 import org.springframework.data.annotation.Id
 
@@ -20,7 +20,7 @@ class Job {
     String timeTaken
 
     String status
-    String lastMessage
+    String message
 
-    List<JobLog> messageLog
+    Map<String, Object> dashboard
 }

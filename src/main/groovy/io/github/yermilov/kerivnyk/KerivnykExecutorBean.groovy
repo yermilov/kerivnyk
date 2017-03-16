@@ -1,4 +1,4 @@
-package com.github.vuzoll.tasks
+package io.github.yermilov.kerivnyk
 
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.context.annotation.Bean
@@ -11,6 +11,6 @@ import java.lang.annotation.Target
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Bean
-@Qualifier('vuzollTasksExecutor')
-@interface TaskExecutorBean {
+@Qualifier('KerivnykExecutorBean')
+@interface KerivnykExecutorBean {
 }

@@ -24,8 +24,8 @@ dependencyRecommendations {
     mavenBom module: 'org.springframework.boot:spring-boot-dependencies:1.5.2.RELEASE'
 }
 
-group = 'com.github.vuzoll'
-version = '0.5-SNAPSHOT'
+group = 'io.github.yermilov'
+version = '0.5'
 
 repositories {
     jcenter()
@@ -64,11 +64,10 @@ bintray {
     publish = true
 
     pkg {
-        userOrg = 'vuzoll'
-        repo = 'vuzoll-maven'
-        name = 'vuzoll-tasks-manager-starter'
+        repo = 'yermilov-maven'
+        name = 'kerivnyk'
         licenses = [ 'Apache-2.0' ]
-        vcsUrl = 'https://github.com/vuzoll/vuzoll-tasks-manager-starter.git'
+        vcsUrl = 'https://github.com/yermilov/kerivnyk.git'
 
         version {
             name = project.version
