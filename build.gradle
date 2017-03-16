@@ -25,7 +25,7 @@ dependencyRecommendations {
 }
 
 group = 'io.github.yermilov'
-version = '0.5.2-SNAPSHOT'
+version = '0.5.2'
 
 repositories {
     jcenter()
