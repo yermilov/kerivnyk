@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service
 
 import javax.annotation.PostConstruct
 import java.time.LocalDateTime
+import java.time.ZoneId
 
 import static io.github.yermilov.kerivnyk.util.DurationUtils.fromDurationString
 import static io.github.yermilov.kerivnyk.util.DurationUtils.toDurationString
@@ -45,7 +46,7 @@ class KerivnykService {
     }
 
     Collection<Job> getActiveJobs() {
-        jobRepository.findByExecutorQualifierAndStatusIn(executorQualifier, [ JobStatus.STARTING.toString(), JobStatus.RUNNING.toString(), JobStatus.STOPPING.toString() ])
+        jobRepository.findByExecutorQualifierAndStatusIn(executorQualifier, [ JobStatus.STARTING.toString(), JobStatus.RUNNING.toString(), JobStatus.SUSPENDED.toString(), JobStatus.STOPPING.toString() ])
     }
 
     Job getJobById(String id) {
@@ -74,10 +75,10 @@ class KerivnykService {
     }
 
     Job stopJob(Job job) {
-        if (job.status == JobStatus.RUNNING.toString()) {
-            job.status = JobStatus.STOPPING.toString()
-        } else {
+        if (job.status == JobStatus.STARTING.toString()) {
             job.status = JobStatus.ABORTED.toString()
+        } else {
+            job.status = JobStatus.STOPPING.toString()
         }
         jobRepository.save(job)
     }
@@ -107,6 +108,10 @@ class KerivnykService {
 
     void executeDurableJob(Job job, DurableJob durableJob) {
         try {
+            if (job.status == JobStatus.ABORTED.toString()) {
+                return
+            }
+
             job.startTimestamp = System.currentTimeMillis()
             job.startTime = LocalDateTime.now().toString()
             job.lastUpdateTime = job.startTime
@@ -130,7 +135,7 @@ class KerivnykService {
                     break
                 }
 
-                if (job.status != JobStatus.RUNNING.toString()) {
+                if (job.status == JobStatus.STOPPING.toString() || job.status == JobStatus.ABORTED.toString()) {
                     job.message = 'stopped by client request'
                     log.info "${jobLogPrefix(job)} ${job.message}"
                     break
@@ -140,6 +145,24 @@ class KerivnykService {
                     job.message = 'time limit is exceeded'
                     log.info "${jobLogPrefix(job)} ${job.message}"
                     break
+                }
+
+                if (durableJob.suspended) {
+                    job.status = JobStatus.SUSPENDED.toString()
+                    job.message = "suspended until ${new Date(durableJob.suspendedUntil).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()}"
+                    log.info "${jobLogPrefix(job)} ${job.message}"
+                    jobRepository.save job
+                }
+
+                if (job.status == JobStatus.SUSPENDED.toString()) {
+                    if (durableJob.canResume()) {
+                        job.status = JobStatus.RUNNING.toString()
+                        job.message = null
+                        log.info "${jobLogPrefix(job)} resumed"
+                        jobRepository.save job
+                    } else {
+                        continue
+                    }
                 }
 
                 durableJob.act()
