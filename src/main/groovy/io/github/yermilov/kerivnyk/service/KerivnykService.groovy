@@ -147,13 +147,6 @@ class KerivnykService {
                     break
                 }
 
-                if (durableJob.suspended) {
-                    job.status = JobStatus.SUSPENDED.toString()
-                    job.message = "suspended until ${new Date(durableJob.suspendedUntil).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()}"
-                    log.info "${jobLogPrefix(job)} ${job.message}"
-                    jobRepository.save job
-                }
-
                 if (job.status == JobStatus.SUSPENDED.toString()) {
                     if (durableJob.canResume()) {
                         job.status = JobStatus.RUNNING.toString()
@@ -163,6 +156,13 @@ class KerivnykService {
                     } else {
                         continue
                     }
+                }
+
+                if (durableJob.suspended) {
+                    job.status = JobStatus.SUSPENDED.toString()
+                    job.message = "suspended until ${new Date(durableJob.suspendedUntil).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()}"
+                    log.info "${jobLogPrefix(job)} ${job.message}"
+                    jobRepository.save job
                 }
 
                 durableJob.act()
