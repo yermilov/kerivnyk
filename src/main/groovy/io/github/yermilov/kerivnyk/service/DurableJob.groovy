@@ -2,6 +2,8 @@ package io.github.yermilov.kerivnyk.service
 
 import io.github.yermilov.kerivnyk.domain.Job
 
+import static io.github.yermilov.kerivnyk.util.DurationUtils.fromDurationString
+
 abstract class DurableJob {
 
     final String name
@@ -9,6 +11,8 @@ abstract class DurableJob {
     final String timeLimit
 
     boolean finished
+    boolean suspended
+    long suspendedUntil
 
     Map<String, Object> dashboard
 
@@ -37,6 +41,18 @@ abstract class DurableJob {
 
     void destroy() {
         // do nothing by default
+    }
+
+    final void suspend(String suspendDuration) {
+        this.suspended = true
+        this.suspendedUntil = System.currentTimeMillis() + fromDurationString(suspendDuration)
+    }
+
+    final boolean canResume() {
+        if (System.currentTimeMillis() > suspendedUntil) (
+            suspended = false
+        )
+        return !suspended
     }
 
     final void finished() {
