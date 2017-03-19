@@ -163,6 +163,7 @@ class KerivnykService {
                     job.message = "suspended until ${new Date(durableJob.suspendedUntil).toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime()}"
                     log.info "${jobLogPrefix(job)} ${job.message}"
                     jobRepository.save job
+                    continue
                 }
 
                 durableJob.act()
