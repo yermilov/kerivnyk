@@ -24,8 +24,12 @@ dependencyRecommendations {
     mavenBom module: 'org.springframework.boot:spring-boot-dependencies:1.5.2.RELEASE'
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+
 group = 'io.github.yermilov'
-version = '0.6.2'
+version = '0.7'
 
 repositories {
     jcenter()

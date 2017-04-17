@@ -22,5 +22,5 @@ class Job {
     String status
     String message
 
-    Map<String, Object> dashboard
+    Map<String, Object> storage
 }
