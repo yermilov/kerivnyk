@@ -14,7 +14,7 @@ abstract class DurableJob {
     boolean suspended
     long suspendedUntil
 
-    Map<String, Object> dashboard
+    Map<String, Object> storage
 
     DurableJob(String name) {
         this(name, null)
@@ -24,10 +24,10 @@ abstract class DurableJob {
         this.name = name
         this.timeLimit = timeLimit
         this.finished = false
-        this.dashboard = [:]
+        this.storage = [:]
     }
 
-    boolean canStart(Collection<Job> concurrentJobs) {
+    boolean canStart(boolean isNew, Collection<Job> concurrentJobs) {
         true
     }
 
