@@ -66,12 +66,20 @@ class KerivnykService {
         jobRepository.findByExecutorQualifier(executorQualifier, START_TIMESTAMP_DESC)
     }
 
-    Job asyncStartJob(DurableJob durableJob) {
+    Job startJob(DurableJob durableJob) {
         runJob(durableJob) { Job job -> taskExecutor.execute(this.&executeDurableJob.curry(job, durableJob)) }
     }
 
-    Job syncStartJob(DurableJob durableJob) {
+    Job restartJobFrom(DurableJob durableJob, Job resurrectionJob) {
+        resurrectJob(durableJob, resurrectionJob) { Job job -> taskExecutor.execute(this.&executeDurableJob.curry(job, durableJob)) }
+    }
+
+    Job doJob(DurableJob durableJob) {
         runJob(durableJob) { Job job -> executeDurableJob(job, durableJob) }
+    }
+
+    Job continueJobFrom(DurableJob durableJob, Job resurrectionJob) {
+        resurrectJob(durableJob, resurrectionJob) { Job job -> executeDurableJob(job, durableJob) }
     }
 
     Job stopJob(Job job) {
@@ -88,12 +96,15 @@ class KerivnykService {
         job.name = durableJob.name
         job.executorQualifier = executorQualifier
         job.status = JobStatus.STARTING.toString()
+        job.startTimestamp = System.currentTimeMillis()
+        job.startTime = LocalDateTime.now().toString()
+        job.timeTaken = '0sec'
 
         job = jobRepository.save job
 
         log.info "${jobLogPrefix(job)} checking if it's possible to start..."
         Collection<Job> activeJobs = getActiveJobs().findAll({ it.id != job.id })
-        if (durableJob.canStart(activeJobs)) {
+        if (durableJob.canStart(true, activeJobs)) {
             log.info "${jobLogPrefix(job)} starting..."
             executeJob(job)
         } else {
@@ -106,16 +117,35 @@ class KerivnykService {
         return job
     }
 
+    Job resurrectJob(DurableJob durableJob, Job resurrectionJob, Closure executeJob) {
+        resurrectionJob.name = durableJob.name
+        resurrectionJob.executorQualifier = executorQualifier
+        resurrectionJob.status = JobStatus.STARTING.toString()
+
+        resurrectionJob = jobRepository.save resurrectionJob
+
+        log.info "${jobLogPrefix(resurrectionJob)} checking if it's possible to resurrect..."
+        Collection<Job> activeJobs = getActiveJobs().findAll({ it.id != resurrectionJob.id })
+        if (durableJob.canStart(false, activeJobs)) {
+            log.info "${jobLogPrefix(resurrectionJob)} resurrecting..."
+            executeJob(resurrectionJob)
+        } else {
+            resurrectionJob.message = 'refused to resurrect'
+            log.warn "${jobLogPrefix(resurrectionJob)} ${resurrectionJob.message}"
+            resurrectionJob.status = JobStatus.ABORTED.toString()
+            jobRepository.save resurrectionJob
+        }
+
+        return resurrectionJob
+    }
+
     void executeDurableJob(Job job, DurableJob durableJob) {
         try {
             if (job.status == JobStatus.ABORTED.toString()) {
                 return
             }
 
-            job.startTimestamp = System.currentTimeMillis()
-            job.startTime = LocalDateTime.now().toString()
-            job.lastUpdateTime = job.startTime
-            job.timeTaken = '0sec'
+            job.lastUpdateTime = LocalDateTime.now().toString()
             job.status = JobStatus.RUNNING.toString()
             job = jobRepository.save job
 
@@ -124,7 +154,7 @@ class KerivnykService {
 
             while (true) {
                 job = jobRepository.findOne job.id
-                job.dashboard = durableJob.dashboard
+                job.storage = durableJob.storage
                 job.lastUpdateTime = LocalDateTime.now().toString()
                 job.timeTaken = toDurationString(System.currentTimeMillis() - job.startTimestamp)
                 jobRepository.save job
