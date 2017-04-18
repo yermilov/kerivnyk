@@ -121,6 +121,9 @@ class KerivnykService {
         resurrectionJob.name = durableJob.name
         resurrectionJob.executorQualifier = executorQualifier
         resurrectionJob.status = JobStatus.STARTING.toString()
+        resurrectionJob.startTimestamp = resurrectionJob.startTimestamp ?: System.currentTimeMillis()
+        resurrectionJob.startTime = resurrectionJob.startTime ?: LocalDateTime.now().toString()
+        resurrectionJob.timeTaken = resurrectionJob.timeTaken ?: '0sec'
 
         resurrectionJob = jobRepository.save resurrectionJob
 
