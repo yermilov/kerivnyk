@@ -131,6 +131,7 @@ class KerivnykService {
         Collection<Job> activeJobs = getActiveJobs().findAll({ it.id != resurrectionJob.id })
         if (durableJob.canStart(false, activeJobs)) {
             log.info "${jobLogPrefix(resurrectionJob)} resurrecting..."
+            durableJob.storage.putAll(resurrectionJob.storage)
             executeJob(resurrectionJob)
         } else {
             resurrectionJob.message = 'refused to resurrect'
